@@ -32,10 +32,7 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $validator->errors()->first(),
-            ], 422); // Unprocessable Entity
+            return response()->json(['message' => $validator->messages()->first()], 422);
         }
 
         $otp = $this->generateFourDigitNumber();
@@ -58,8 +55,8 @@ class UserController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'User registered successfully.',
-            'user' => $user,
             'token' => $token,
+            'user' => $user,
         ], 200);
     }
 
@@ -74,17 +71,14 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $validator->errors()->first(),
-            ], 422); // Unprocessable Entity
+            return response()->json(['message' => $validator->messages()->first()], 422);
         }
 
         $user = User::where('phone_number', $request->phone_number)->first();
 
         if (!$user) {
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => 'User not found.'
             ], 404);
         }
@@ -92,7 +86,7 @@ class UserController extends Controller
         // Assuming you have a "otp" field in the users table
         if ($user->otp_code !== $request->otp) {
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => 'Invalid OTP.'
             ], 400);
         }
@@ -102,7 +96,7 @@ class UserController extends Controller
         $user->save();
 
         return response()->json([
-            'status' => 'success',
+            'success' => true,
             'message' => 'OTP verified successfully.'
         ], 200);
     }
@@ -111,6 +105,7 @@ class UserController extends Controller
     {
         return rand(1000, 9999);
     }
+
     public function resendOtp(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -118,16 +113,15 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $validator->errors()->first(),
-            ], 422); // Unprocessable Entity
+            return response()->json(['message' => $validator->messages()->first()], 422);
         }
+
+
         $user = User::where('phone_number', $request->phone_number)->first();
 
         if (!$user) {
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => 'Phone number not found.'
             ], 404);
         }
@@ -136,7 +130,7 @@ class UserController extends Controller
         $newOtp = $this->generateFourDigitNumber(); // Implement this function
         $user->otp_code = $newOtp;
         $user->save();
-
+        Mail::to($user->email)->send(new OtpMail($newOtp));
         // Send the new OTP to the user (you can use your email sending logic here)
 
         return response()->json([
@@ -156,17 +150,15 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $validator->errors()->first(),
-            ], 422); // Unprocessable Entity
+            return response()->json(['message' => $validator->messages()->first()], 422);
         }
+
 
         $user = User::where('phone_number', $request->phone_number)->first();
 
         if (!$user) {
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => 'User not found.'
             ], 404);
         }
@@ -176,7 +168,7 @@ class UserController extends Controller
         $user->save();
 
         return response()->json([
-            'status' => 'success',
+            'success' => true,
             'message' => 'Password created successfully.'
         ], 200);
     }
