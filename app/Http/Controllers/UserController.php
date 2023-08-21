@@ -53,7 +53,7 @@ class UserController extends Controller
 
         // Return user information and token in the response
         return response()->json([
-            'status' => 'success',
+            'success' => true,
             'message' => 'User registered successfully.',
             'token' => $token,
             'user' => $user,
