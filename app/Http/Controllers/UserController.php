@@ -134,7 +134,7 @@ class UserController extends Controller
         // Send the new OTP to the user (you can use your email sending logic here)
 
         return response()->json([
-            'status' => 'success',
+            'success' => true,
             'message' => 'New OTP sent successfully.'
         ], 200);
     }
@@ -186,14 +186,14 @@ class UserController extends Controller
             $token = $user->createToken('authToken')->plainTextToken;
 
             return response()->json([
-                'status' => 'success',
+                'success' => true,
                 'message' => 'Sign-in successful.',
                 'token' => $token,
             ], 200);
         }
 
         return response()->json([
-            'status' => 'error',
+            'scuccess' => false,
             'message' => 'Invalid username or password.'
         ], 401);
     }
