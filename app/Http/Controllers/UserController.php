@@ -47,7 +47,7 @@ class UserController extends Controller
         $user->save();
 
         Mail::to($user->email)->send(new OtpMail($otp));
-
+        $users =$user->select('id','email','phone_number')->get();
         // Generate a token for the user
         $token = $user->createToken('authToken')->plainTextToken;
 
@@ -56,7 +56,7 @@ class UserController extends Controller
             'success' => true,
             'message' => 'User registered successfully.',
             'token' => $token,
-            'user' => $user,
+            'user' => $users,
         ], 200);
     }
 
