@@ -49,7 +49,7 @@ class UserController extends Controller
 
         Mail::to($user->email)->send(new OtpMail($otp));
         // Generate a token for the user
-        $checkphone = User::where('phone', '=', $request->phone_number)->first();
+        $checkphone = User::where('phone_number', '=', $request->phone_number)->first();
 
         if (!$checkphone) {
             return response()->json([
