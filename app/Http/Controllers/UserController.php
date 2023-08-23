@@ -232,17 +232,14 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Invalid input.',
-            ], 400);
+            return response()->json(['message' => $validator->messages()->first()], 422);
         }
 
         $user = User::where('phone_number', $request->input('phone_number'))->first();
 
         if (!$user) {
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => 'Phone number not found.',
             ], 404);
         }
@@ -260,7 +257,7 @@ class UserController extends Controller
 
         if ($user->save()) {
             return response()->json([
-                'status' => 'success',
+                'success' => true,
                 'message' => 'OTP sent to the provided phone number.',
             ], 200);
         }
@@ -281,17 +278,14 @@ class UserController extends Controller
         ]);
     
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Invalid input.',
-            ], 400);
+            return response()->json(['message' => $validator->messages()->first()], 422);
         }
     
         $user = User::find($user_id);
     
         if (!$user) {
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => 'User not found.',
             ], 404);
         }
@@ -312,7 +306,7 @@ class UserController extends Controller
         ]);
     
         return response()->json([
-            'status' => 'success',
+            'success' => true,
             'message' => 'Profile updated successfully.',
         ], 200);
     }
