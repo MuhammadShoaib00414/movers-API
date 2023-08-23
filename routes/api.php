@@ -31,7 +31,8 @@ Route::post('resend_otp', 'UserController@resendOtp');
 Route::post('create_password', 'UserController@createPassword');
 Route::post('sign_in', 'UserController@signIn');
 
+Route::post('/forgot_password', 'UserController@forgotPassword');
 
 
-
+Route::post('/edit_profile', 'UserController@editProfile');
 

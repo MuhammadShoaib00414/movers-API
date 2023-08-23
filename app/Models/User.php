@@ -28,14 +28,17 @@ class User extends Authenticatable
     //     ]);
     // }
 
-   
+
     protected $fillable = [
 
         'email',
         'password',
         'username',
         'phone_number',
-        'otp_code'
+        'otp_code',
+        'first_name',
+        'last_name',
+        'profile_image',
     ];
 
     /**
