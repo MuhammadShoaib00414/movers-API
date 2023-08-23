@@ -168,10 +168,9 @@ class UserController extends Controller
     public function createPassword(Request $request)
     {
 
-
         $validator = Validator::make($request->all(), [
             'phone_number' => 'required|string',
-            'password' => 'required|min:8|confirmed',
+            'password' => 'required|min:8',
         ]);
 
         if ($validator->fails()) {
