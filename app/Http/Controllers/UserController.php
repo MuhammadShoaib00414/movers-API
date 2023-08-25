@@ -213,6 +213,7 @@ class UserController extends Controller
                 'success' => true,
                 'message' => 'Sign-in successful.',
                 'token' => $token,
+                'user' => $user
             ], 200);
         }
 
