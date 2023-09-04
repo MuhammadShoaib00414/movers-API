@@ -335,7 +335,6 @@ class UserController extends Controller
         }
     }
 
-
     public function storeMoveDetails(Request $request)
     {
         // Validation rules for the request data

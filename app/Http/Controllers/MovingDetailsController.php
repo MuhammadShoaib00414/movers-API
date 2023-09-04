@@ -10,61 +10,102 @@ class MovingDetailsController extends Controller
 {
     public function storeMoveDetails(Request $request)
     {
-       dd('Test');
-        // Validate the incoming request data
-        $validatedData = $request->validate([
-            'pickup_address' => 'nullable|string',
-            'dropoff_address' => 'nullable|string',
-            'pickup_date' => 'nullable|string',
-            'pickup_time' => 'nullable|string',
-            'item_pictures' => 'nullable|string',
-            'detailed_description' => 'nullable|string',
-            'pickup_property_type' => 'nullable|in:apartment,condominium',
-            'pickup_unit_number' => 'nullable|string',
-            'pickup_bedrooms' => 'nullable|integer',
-            'pickup_elevator' => 'nullable|boolean',
-            'pickup_flight_of_stairs' => 'nullable|integer',
-            'pickup_elevator_timing_from' => 'nullable|integer',
-            'pickup_elevator_timing_to' => 'nullable|integer',
-            'dropoff_elevator' => 'nullable|boolean',
-            'dropoff_flight_of_stairs' => 'nullable|integer',
-            'dropoff_elevator_timing_from' => 'nullable|integer',
-            'dropoff_elevator_timing_to' => 'nullable|integer',
+        // Validation rules for the request data
+        $validator = Validator::make($request->all(), [
+            'pickup_address' => 'required|string',
+            'dropoff_address' => 'required|string',
+            'pickup_date' => 'required|date',
+            'pickup_time' => 'required',
+            'item_pictures.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'detailed_description' => 'required|string',
+            'pickup_property_type' => 'required|string|in:apartment,condominium',
+            'pickup_bedrooms' => 'integer|nullable',
+            'pickup_unit_number' => 'string|nullable',
+            'pickup_elevator' => 'required|boolean',
+            'pickup_flight_of_stairs' => 'integer|nullable',
+            'pickup_elevator_timing_from' => 'nullable',
+            'pickup_elevator_timing_to' => 'nullable',
+            'dropoff_elevator' => 'boolean|nullable',
+            'dropoff_flight_of_stairs' => 'integer|nullable',
+            'dropoff_elevator_timing_from' => 'nullable',
+            'dropoff_elevator_timing_to' => 'nullable',
+            'pickup_latitude' => 'numeric|nullable',
+            'pickup_longitude' => 'numeric|nullable',
+            'dropoff_latitude' => 'numeric|nullable',
+            'dropoff_longitude' => 'numeric|nullable',
         ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid input.',
+                'errors' => $validator->errors(),
+            ], 400);
+        }
 
+        // Retrieve the validated data
+        $validatedData = $validator->validated();
 
-        // Initialize Google Maps client
-    //    $googleMaps = new GoogleMaps(['key' => 'YOUR_GOOGLE_MAPS_API_KEY']);
+        // Create a new MovingDetails instance with the validated data
+        $delivery = new MovingDetails($validatedData);
 
-      
-    //     $pickupAddress = $validatedData['pickup_address'];
-    //     $pickupCoordinates = $googleMaps->geocode($pickupAddress)->first();
+        // Handle conditional logic based on 'pickup_property_type' and 'pickup_elevator'
+        if ($delivery->pickup_property_type === 'apartment' || $delivery->pickup_property_type === 'condominium') {
+            // Handle fields related to apartments and condominiums
+            $delivery->pickup_bedrooms = $validatedData['pickup_bedrooms'];
+            $delivery->pickup_unit_number = $validatedData['pickup_unit_number'];
+        }
 
-      
-    //     $dropoffAddress = $validatedData['dropoff_address'];
-    //     $dropoffCoordinates = $googleMaps->geocode($dropoffAddress)->first();
+        if (!$delivery->pickup_elevator) {
+            // Handle fields when there is no elevator
+            $delivery->pickup_flight_of_stairs = $validatedData['pickup_flight_of_stairs'];
+        } else {
+            // Handle fields when there is an elevator
+            $delivery->pickup_elevator_timing_from = $validatedData['pickup_elevator_timing_from'];
+            $delivery->pickup_elevator_timing_to = $validatedData['pickup_elevator_timing_to'];
+        }
 
+        // Ensure the 'delivery' folder exists
+        $deliveryFolder = public_path('delivery');
+        if (!is_dir($deliveryFolder)) {
+            mkdir($deliveryFolder, 0777, true);
+        }
        
-    //     $validatedData['pickup_latitude'] = $pickupCoordinates['geometry']['location']['lat'];
-    //     $validatedData['pickup_longitude'] = $pickupCoordinates['geometry']['location']['lng'];
-    //     $validatedData['dropoff_latitude'] = $dropoffCoordinates['geometry']['location']['lat'];
-    //     $validatedData['dropoff_longitude'] = $dropoffCoordinates['geometry']['location']['lng'];
+        // Upload item pictures to the 'delivery' folder
+        $uploadedPictures = [];
+        foreach ($request->file('item_pictures') as $file) {
+          
+            // Check if the file is an image
+            if ($file->isValid() && in_array($file->getClientOriginalExtension(), ['jpeg', 'png', 'jpg', 'gif'])) {
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $file->move($deliveryFolder, $fileName);
+                $uploadedPictures[] = $fileName;
+            } else {
+                // Handle invalid image file
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid image file(s). Please upload valid images (jpeg, png, jpg, gif).'
+                ], 400);
+            }
+        }
 
-        // Create and store the data
-        $moveDetails = MovingDetails::create($validatedData);
+        // Attach uploaded picture file names to the delivery instance
+        $delivery->item_pictures = json_encode($uploadedPictures);
 
-        if ($moveDetails) {
+
+        // Save the delivery record to the database
+        if ($delivery->save()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Move details stored successfully.',
-                'data' => $moveDetails
+                'data' => $delivery
             ], 200);
+        } else {
+            // Handle database save failure
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to store move details.'
+            ], 500);
         }
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to store move details.'
-        ], 500);
 
     }
 }
