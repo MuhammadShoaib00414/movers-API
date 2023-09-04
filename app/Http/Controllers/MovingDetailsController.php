@@ -16,7 +16,7 @@ class MovingDetailsController extends Controller
             'dropoff_address' => 'required|string',
             'pickup_date' => 'required|date',
             'pickup_time' => 'required',
-            'item_pictures.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'item_pictures.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
             'detailed_description' => 'required|string',
             'pickup_property_type' => 'required|string|in:apartment,condominium',
             'pickup_bedrooms' => 'integer|nullable',
@@ -35,12 +35,9 @@ class MovingDetailsController extends Controller
             'dropoff_longitude' => 'numeric|nullable',
         ]);
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid input.',
-                'errors' => $validator->errors(),
-            ], 400);
+            return response()->json(['message' => $validator->messages()->first()], 422);
         }
+
 
         // Retrieve the validated data
         $validatedData = $validator->validated();
@@ -104,7 +101,7 @@ class MovingDetailsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to store move details.'
-            ], 500);
+            ], 200);
         }
 
     }

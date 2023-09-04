@@ -26,7 +26,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route::get('moving-details', [MovingDetailController::class, 'index']);
 });
 
-Route::post('/moving_details', 'MovingDetailsController@storeMoveDetails');
+Route::post('moving_details', [MovingDetailsController::class, 'storeMoveDetails'])->name('moving_details');
+// Route::post('/moving_details', 'MovingDetailsController@storeMoveDetails');
 Route::post('user_registration', 'UserController@register');
 Route::post('otp_verification', 'UserController@verifyOtp');
 Route::post('resend_otp', 'UserController@resendOtp');
