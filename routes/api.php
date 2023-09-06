@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\DeliveryDetailController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MovingDetailsController;
+use App\Models\DeliveryDetail;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -39,3 +42,4 @@ Route::post('/edit_profile', 'UserController@editProfile');
 
 Route::post('/delivery', 'UserController@storeMoveDetails');
 
+Route::post('/delivery_details',[DeliveryDetailController::class,'storeDeliveryDetails']);
