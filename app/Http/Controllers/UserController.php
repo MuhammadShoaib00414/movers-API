@@ -47,6 +47,13 @@ class UserController extends Controller
         $user->otp_code = $otp;
         $user->save();
 
+        if ($request->hasFile('profile_image')) {
+            $filename = 'users/' . $user->id . '/profile_image';
+            $image = $request->file('profile_image');
+            $path = $image->store($filename, 'public');
+            $user->profile_image = 'storage/' . $path; // Added a '/' after 'storage'
+        }
+        
         Mail::to($user->email)->send(new OtpMail($otp));
         // Generate a token for the user
         $checkphone = User::where('phone_number', '=', $request->phone_number)->first();
@@ -203,7 +210,7 @@ class UserController extends Controller
 
     public function signIn(Request $request)
     {
-        $credentials = $request->only('username', 'password');
+        $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
