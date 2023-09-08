@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MovingDetailsController;
+use App\Http\Controllers\DeliveryDetailController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -37,5 +38,10 @@ Route::post('/forgot_password', 'UserController@forgotPassword');
 
 Route::post('/edit_profile', 'UserController@editProfile');
 
-Route::post('/delivery', 'UserController@storeMoveDetails');
+Route::post('/moving-details', 'UserController@storeMoveDetails');
+
+
+// Route::post('/delivery-details', 'UserController@storeMoveDetails');
+
+Route::post('/delivery-details',[DeliveryDetailController::class,'storeDeliveryDetails']);
 
