@@ -26,13 +26,13 @@ return new class extends Migration
             $table->string('pickup_unit_number')->nullable();
             $table->string('pickup_flight_of_stairs')->nullable();
             $table->boolean('pickup_elevator')->default(false);
-            $table->string('pickup_elevator_timing_from')->nullable();
-            $table->string('pickup_elevator_timing_to')->nullable();
+            $table->text('pickup_elevator_timing_from')->nullable();
+            $table->text('pickup_elevator_timing_to')->nullable();
             $table->enum('dropoff_property_type', ['apartment', 'condominium']);
             $table->integer('dropoff_unit_number')->nullable();
             $table->boolean('dropoff_elevator')->default(false);
-            $table->string('dropoff_elevator_timing_from')->nullable();
-            $table->string('dropoff_elevator_timing_to')->nullable();
+            $table->text('dropoff_elevator_timing_from')->nullable();
+            $table->text('dropoff_elevator_timing_to')->nullable();
             $table->string('dropoff_flight_of_stairs')->nullable();
             // Add columns for pickup and dropoff latitude and longitude
             $table->json('pickup_latitude')->nullable();

@@ -14,6 +14,7 @@ class DeliveryDetailController extends Controller
 
     public function storeDeliveryDetails(Request $request)
     {
+        
         // Validation rules for the request data
         $validator = Validator::make($request->all(), [
             'pickup_address' => 'required|array|between:1,3',
@@ -24,12 +25,12 @@ class DeliveryDetailController extends Controller
             'number_of_items' => 'required|string',
             'heavey_weight_items' => 'boolean',
             'pickup_property_type' => ['required', 'in:apartment,condominium'],
-            'pickup_unit_number' => 'required|string',
+            'pickup_unit_number' => 'nullable|string',
             'pickup_elevator' => 'boolean',
             // 'pickup_flight_of_stairs' => 'null',
             // 'dropoff_flight_of_stairs' => 'required',
-            'pickup_elevator_timing_from' => 'required|string',
-            'pickup_elevator_timing_to' => 'required|string',
+            'pickup_elevator_timing_from' => 'required',
+            'pickup_elevator_timing_to' => 'required',
             'dropoff_property_type' => ['required', 'in:apartment,condominium'],
             'dropoff_unit_number' => 'required|integer',
             'dropoff_elevator' => 'boolean',
@@ -45,10 +46,8 @@ class DeliveryDetailController extends Controller
         if ($validator->fails()) {
             return response()->json(['message' => $validator->messages()->first()], 422);
         }
-
         // Create an array to store all the delivery details
         $deliveries = [];
-
         // foreach ($request->pickup_address as $key => $pickupAddress) {
             // Create a new DeliveryDetail instance for each set of pickup and dropoff addresses
             $delivery = new DeliveryDetail();
@@ -60,28 +59,22 @@ class DeliveryDetailController extends Controller
             $delivery->number_of_items = $request->number_of_items;
             $delivery->heavey_weight_items = $request->heavey_weight_items;
             $delivery->pickup_property_type = $request->pickup_property_type;
-
             if ($delivery->pickup_property_type === 'apartment' || $delivery->pickup_property_type === 'condominium') {
                 $delivery->pickup_unit_number = $request->pickup_unit_number;
             }
-
             $delivery->pickup_elevator = $request->pickup_elevator;
-
+            // dd($request->pickup_elevator);
             if ($request->pickup_elevator == 0) {
                 $delivery->pickup_flight_of_stairs = $request->pickup_flight_of_stairs;
             } else {
                 $delivery->pickup_elevator_timing_from = $request->pickup_elevator_timing_from;
                 $delivery->pickup_elevator_timing_to = $request->pickup_elevator_timing_to;
             }
-
             $delivery->dropoff_property_type = $request->dropoff_property_type;
-
             if ($delivery->dropoff_property_type === 'apartment' || $delivery->dropoff_property_type === 'condominium') {
                 $delivery->dropoff_unit_number = $request->dropoff_unit_number;
             }
-
-            $delivery->dropoff_elevator = $request->has('dropoff_elevator');
-
+            $delivery->dropoff_elevator = $request->dropoff_elevator;
             if ($request->dropoff_elevator == 0) {
                 $delivery->dropoff_flight_of_stairs = $request->dropoff_flight_of_stairs;
             } else {
