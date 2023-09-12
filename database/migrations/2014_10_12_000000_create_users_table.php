@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('phone_number')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
+            $table->enum('user_type',['admin','user']);
             $table->rememberToken();
             $table->timestamps();
         });
