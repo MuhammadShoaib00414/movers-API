@@ -25,6 +25,7 @@ class UserController extends Controller
             'username' => 'required',
             'phone_number' => 'required|unique:users',
             'email' => 'required|email|unique:users',
+            'user_type' => 'required|in:user',
         ], [
             'phone_number.unique' => 'Phone number already in use.',
         ]);
@@ -44,6 +45,7 @@ class UserController extends Controller
         $user->username = $request->input('username');
         $user->phone_number = $request->input('phone_number');
         $user->email = $request->input('email');
+        $user->user_type = $request->input('user_type');
         $user->otp_code = $otp;
         $user->save();
 
@@ -208,7 +210,7 @@ class UserController extends Controller
 
     // ...
 
-    public function signIn(Request $request)
+    public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
 
